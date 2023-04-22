@@ -20,6 +20,8 @@ public:
 
     void travel();
 
+    void broadcastSessionInfo();
+
     bool _ready = false;
 
     std::vector<std::weak_ptr<GameClient>> _game_clients;

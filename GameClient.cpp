@@ -89,7 +89,7 @@ void GameClient::handleMessage(EMessageType type, const rapidjson::Document &doc
                 {
                     if (joinSession(ds))
                     {
-                        ds->makeAllJson(writer);
+                        ds->broadcastSessionInfo();
                     }
                     else
                     {

@@ -7,6 +7,7 @@
 #include "GameClient.h"
 #include "RPGServer.h"
 
+using namespace rapidjson;
 extern std::shared_ptr<RPGServer<GameClient>> GameServer;
 
 DS::DS(const brynet::net::TcpConnection::Ptr &session)
@@ -113,5 +114,18 @@ void DS::travel()
         {
             iter.lock()->clientTravel(ip);
         }
+    }
+}
+
+void DS::broadcastSessionInfo()
+{
+    StringBuffer send_buffer;
+    Writer<StringBuffer> writer(send_buffer);
+
+    makeAllJson(writer);
+
+    for (const std::weak_ptr<GameClient>& iter : _game_clients)
+    {
+        iter.lock()->sendMessage(EMessageType::JoinSessionResponse, &send_buffer);
     }
 }
