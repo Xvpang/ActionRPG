@@ -31,7 +31,6 @@ public:
     std::string _id;
     std::string _avatar_url;
     std::string _nick_name;
-    brynet::net::TcpConnection::Ptr _session;
     std::weak_ptr<DS> _in_ds;
 };
 

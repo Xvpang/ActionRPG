@@ -29,8 +29,9 @@ public:
 
     std::string _session_name;
 
+    std::string _ip_override;
+
     int32_t _session_id = 0;
-    brynet::net::TcpConnection::Ptr _session;
 
     void handleMessage(EMessageType type, const rapidjson::Document &doc) override;
 

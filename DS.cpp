@@ -69,6 +69,10 @@ void DS::handleMessage(EMessageType type, const rapidjson::Document &doc)
             {
                 _max_clients = doc["MaxPlayers"].GetInt();
             }
+            if (doc.HasMember("IpOverride") && doc["IpOverride"].IsString())
+            {
+                _ip_override = doc["IpOverride"].GetString();
+            }
         }
             break;
         case ServerUpdateReadyNtf:
@@ -89,6 +93,7 @@ bool DS::handleJoin(const std::shared_ptr<GameClient>& client)
     if (_game_clients.size() <= _max_clients)
     {
         _game_clients.push_back(client);
+        return true;
     }
     return false;
 }
@@ -107,8 +112,8 @@ void DS::handleLeave(const std::shared_ptr<GameClient> &client)
 
 void DS::travel()
 {
-    std::string ip = _session->getIP();
-    for (auto iter : _game_clients)
+    std::string ip = _ip_override.empty() ? _session->getIP() : _ip_override;
+    for (auto iter: _game_clients)
     {
         if (!iter.expired())
         {

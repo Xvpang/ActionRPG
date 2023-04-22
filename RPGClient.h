@@ -32,8 +32,11 @@ enum EMessageType : int32_t
     LeaveSessionResponse
 };
 
+std::string getMessageTypeString(EMessageType type);
+
 enum EErrorType : int32_t
 {
+    None = 0,
     InvalidSessionId = 1,
     JoinFailed,
 };

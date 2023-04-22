@@ -79,10 +79,7 @@ void GameClient::handleMessage(EMessageType type, const rapidjson::Document &doc
         {
             if (doc.HasMember("SessionId") && doc["SessionId"].IsInt())
             {
-                StringBuffer send_buffer;
-                Writer<StringBuffer> writer(send_buffer);
-
-                writer.StartObject();
+                EErrorType error_type = EErrorType::None;
 
                 int32_t session_id = doc["SessionId"].GetInt();
                 if (std::shared_ptr<DS> ds = findDSServerBySessionId(session_id))
@@ -93,19 +90,27 @@ void GameClient::handleMessage(EMessageType type, const rapidjson::Document &doc
                     }
                     else
                     {
-                        writer.Key("ErrorCode"); writer.Int(JoinFailed);
-                        SendRefreshGameSessionResponse();//暂时不知道混合着写有没有问题
+                        error_type = EErrorType::JoinFailed;
                     }
                 }
                 else
                 {
-                    writer.Key("ErrorCode"); writer.Int(InvalidSessionId);
-                    SendRefreshGameSessionResponse();
+                    error_type = EErrorType::InvalidSessionId;
                 }
 
-                writer.EndObject();
+                if (error_type != EErrorType::None)
+                {
+                    StringBuffer send_buffer;
+                    Writer<StringBuffer> writer(send_buffer);
 
-                sendMessage(EMessageType::JoinSessionResponse, &send_buffer);
+                    writer.StartObject();
+                    writer.Key("ErrorCode"); writer.Int(JoinFailed);
+                    writer.EndObject();
+
+                    sendMessage(EMessageType::JoinSessionResponse, &send_buffer);
+
+                    SendRefreshGameSessionResponse();
+                }
             }
             else
             {
@@ -115,11 +120,17 @@ void GameClient::handleMessage(EMessageType type, const rapidjson::Document &doc
             break;
         case LeaveSessionRequest:
         {
-            leaveSession();
+            if (!_in_ds.expired())
+            {
+                std::weak_ptr<DS> ds = _in_ds;
+                leaveSession();
 
-            sendMessage(EMessageType::LeaveSessionResponse, nullptr);
+                sendMessage(EMessageType::LeaveSessionResponse, nullptr);
 
-            SendRefreshGameSessionResponse();
+                ds.lock()->broadcastSessionInfo();
+
+                SendRefreshGameSessionResponse();
+            }
         }
             break;
         default: ;
@@ -150,6 +161,10 @@ void GameClient::SendRefreshGameSessionResponse()
 
 bool GameClient::joinSession(const std::shared_ptr<DS> &ds)
 {
+    if (!_in_ds.expired())
+    {
+        leaveSession();
+    }
     if (ds->handleJoin(shared_from_this()))
     {
         _in_ds = ds;

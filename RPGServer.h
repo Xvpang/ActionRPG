@@ -16,6 +16,7 @@
 #include <unordered_map>
 
 
+
 template<typename ClientType>
 class RPGServer
 {
@@ -34,7 +35,7 @@ public:
                         }})
                 .WithMaxRecvBufferSize(1024)
                 .AddEnterCallback([this](const brynet::net::TcpConnection::Ptr& session){
-                    std::cout << "Ip: " << session->getIP() << " - join" << std::endl;
+                    std::cout  << typeid(ClientType).name() << "  Ip: " << session->getIP() << " - join" << std::endl;
 
                     _client_map.emplace(session, std::make_shared<ClientType>(session));
 
@@ -43,8 +44,8 @@ public:
                         auto iter = _client_map.find(session);
                         if (iter != _client_map.end())
                         {
-                            std::cout << "Ip: " << session->getIP() << " - leave" << std::endl;
-                            iter.second->onDisconnect();
+                            std::cout << typeid(ClientType).name() << "  Ip: " << session->getIP() << " - leave" << std::endl;
+                            iter->second->onDisconnect();
                             _client_map.erase(iter);
                         }
                     });
