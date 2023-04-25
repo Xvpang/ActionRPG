@@ -24,6 +24,8 @@ enum EMessageType : int32_t
     ClientStartGameResponse,
     ClientStartGameRequest,
 
+    Login,
+    Logout,
     RefreshGameSessionRequest,
     RefreshGameSessionResponse,
     JoinSessionRequest,

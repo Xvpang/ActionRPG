@@ -26,7 +26,7 @@ void DS::makeDSJson(rapidjson::Writer<rapidjson::StringBuffer> &writer)
     std::string SessionName = _session_name.length() > 0 ? _session_name : std::string(_session->getIP());
 
     writer.Key("SessionId"); writer.Int(_session_id);
-    writer.Key("TapSessionName"); writer.String(SessionName.c_str());
+    writer.Key("TdsSessionName"); writer.String(SessionName.c_str());
     writer.Key("MaxPlayers"); writer.Int(_max_clients);
     writer.Key("CurrentPlayer"); writer.Int(static_cast<int32_t>(_game_clients.size()));
 
@@ -40,7 +40,7 @@ void DS::makeAllJson(rapidjson::Writer<rapidjson::StringBuffer> &writer)
     std::string SessionName = _session_name.length() > 0 ? _session_name : std::string(_session->getIP());
 
     writer.Key("SessionId"); writer.Int(_session_id);
-    writer.Key("TapSessionName"); writer.String(SessionName.c_str());
+    writer.Key("TdsSessionName"); writer.String(SessionName.c_str());
     writer.Key("MaxPlayers"); writer.Int(_max_clients);
     writer.Key("CurrentPlayer"); writer.Int(static_cast<int32_t>(_game_clients.size()));
 
@@ -61,9 +61,9 @@ void DS::handleMessage(EMessageType type, const rapidjson::Document &doc)
     {
         case SayHello:
         {
-            if (doc.HasMember("TapSessionName") && doc["TapSessionName"].IsString())
+            if (doc.HasMember("TdsSessionName") && doc["TdsSessionName"].IsString())
             {
-                _session_name = doc["TapSessionName"].GetString();
+                _session_name = doc["TdsSessionName"].GetString();
             }
             if (doc.HasMember("MaxPlayers") && doc["MaxPlayers"].IsInt())
             {
